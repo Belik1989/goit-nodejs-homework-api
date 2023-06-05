@@ -19,6 +19,10 @@ const contactSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  __v: {
+    type: Number,
+    select: false,
+  },
 });
 
 contactSchema.post("save", handleMongooseError);

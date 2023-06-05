@@ -1,10 +1,10 @@
 const { RequestError } = require("../helpers");
 
-const validateBody = (schema) => {
+const validateBodyFavorite = (schema) => {
   const func = (req, res, next) => {
     const { error } = schema.validate(req.body);
     if (Object.keys(req.body).length === 0) {
-      next(RequestError(400, "Missing fields name,mail,phone"));
+      next(RequestError(400, "Missing fields favorite"));
       return;
     }
     if (error) {
@@ -15,4 +15,4 @@ const validateBody = (schema) => {
   return func;
 };
 
-module.exports = validateBody;
+module.exports = validateBodyFavorite;
