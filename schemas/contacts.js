@@ -15,8 +15,14 @@ const addSchema = Joi.object({
     "string.empty": `"phone" cannot be an empty field`,
     "any.required": `missing required field "phone"`,
   }),
+  favorite: Joi.boolean(),
+});
+
+const contactUpdateFavoriteSchema = Joi.object({
+  favorite: Joi.boolean().required(),
 });
 
 module.exports = {
   addSchema,
+  contactUpdateFavoriteSchema,
 };
