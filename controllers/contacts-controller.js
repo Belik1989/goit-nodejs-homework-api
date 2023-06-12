@@ -7,14 +7,28 @@ const { ctrlWrapper } = require("../decorators");
 const { query } = require("express");
 
 const getAllContacts = async (req, res) => {
-  const { _id: owner } = req.user;
-  const { page = 1, limit = 20, ...query } = req.query;
+  const { _id } = req.user;
+  const { page = 1, limit = 20 } = req.query;
   const skip = (page - 1) * limit;
-  const result = await Contact.find(
-    { owner, ...query },
-    { skip, limit }
-  ).populate("owner", "email");
-  res.json(result);
+  // const contacts = await contactsOperations.getAll();
+  const contacts = await Contact.find(
+    { owner: _id },
+    "",
+    { skip, limit: Number(limit) },
+    "",
+    {
+      skip: 0,
+      limit: 2,
+    }
+  ).populate("owner", "_id email subscription");
+
+  res.json({
+    status: "success",
+    code: 200,
+    data: {
+      result: contacts,
+    },
+  });
 };
 
 const getContactById = async (req, res) => {

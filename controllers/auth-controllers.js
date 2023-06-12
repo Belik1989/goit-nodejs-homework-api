@@ -10,6 +10,8 @@ const { ctrlWrapper } = require("../decorators");
 
 const { SECRET_KEY } = process.env;
 
+// const { name, email, password } = req.body;
+
 const signup = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -21,9 +23,13 @@ const signup = async (req, res) => {
 
   const newUser = await User.create({ ...req.body, password: hashPassword });
 
+  const { subscription } = await User.create(newUser);
   res.status(201).json({
-    name: newUser.name,
-    email: newUser.email,
+    status: "success",
+    code: 201,
+    data: {
+      user: { email, subscription },
+    },
   });
 };
 
@@ -46,24 +52,34 @@ const login = async (req, res) => {
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
   await User.findByIdAndUpdate(id, { token });
   res.json({
-    token,
+    status: "success",
+    code: 200,
+    data: {
+      token,
+      user: {
+        email: user.email,
+        subscription: user.subscription,
+      },
+    },
   });
 };
 
 const getCurrent = async (req, res) => {
   const { email, subscription } = req.user;
   res.json({
-    email,
-    subscription,
+    status: "success",
+    code: 200,
+    data: {
+      email,
+      subscription,
+    },
   });
 };
 
 const logout = async (req, res) => {
   const { _id } = req.user;
   await User.findByIdAndUpdate(_id, { token: " " });
-  res.json({
-    message: "Logout success!",
-  });
+  res.status(204).json();
 };
 
 const userUpdateSubscription = async (req, res) => {
