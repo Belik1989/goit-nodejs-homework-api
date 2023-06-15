@@ -22,13 +22,7 @@ const getAllContacts = async (req, res) => {
     }
   ).populate("owner", "_id email subscription");
 
-  res.json({
-    status: "success",
-    code: 200,
-    data: {
-      result: contacts,
-    },
-  });
+  res.json(contacts);
 };
 
 const getContactById = async (req, res) => {
