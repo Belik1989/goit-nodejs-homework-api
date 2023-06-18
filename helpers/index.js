@@ -1,3 +1,8 @@
 const RequestError = require("./RequestError");
 
-module.exports = { RequestError };
+const handleMongooseError = require("../middlewares/handleMongooseError");
+
+module.exports = {
+  RequestError,
+  handleMongooseError,
+};

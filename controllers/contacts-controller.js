@@ -4,10 +4,25 @@ const Contact = require("../models/contact");
 const { RequestError } = require("../helpers");
 
 const { ctrlWrapper } = require("../decorators");
+const { query } = require("express");
 
 const getAllContacts = async (req, res) => {
-  const result = await Contact.find();
-  res.json(result);
+  const { _id } = req.user;
+  const { page = 1, limit = 20 } = req.query;
+  const skip = (page - 1) * limit;
+  // const contacts = await contactsOperations.getAll();
+  const contacts = await Contact.find(
+    { owner: _id },
+    "",
+    { skip, limit: Number(limit) },
+    "",
+    {
+      skip: 0,
+      limit: 2,
+    }
+  ).populate("owner", "_id email subscription");
+
+  res.json(contacts);
 };
 
 const getContactById = async (req, res) => {
@@ -21,7 +36,8 @@ const getContactById = async (req, res) => {
 };
 
 const addContact = async (req, res) => {
-  const result = await Contact.create(req.body);
+  const { _id: owner } = req.user;
+  const result = await Contact.create({ ...req.body, owner });
   res.status(201).json(result);
 };
 

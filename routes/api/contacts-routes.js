@@ -6,7 +6,9 @@ const schemas = require("../../schemas/contacts");
 
 const { validateBody } = require("../../decorators");
 const { validateBodyFavorite } = require("../../decorators");
-const { isValidId } = require("../../middlewares");
+const { isValidId, authenticate } = require("../../middlewares");
+
+router.use(authenticate);
 
 router.get("/", contactsController.getAllContacts);
 
