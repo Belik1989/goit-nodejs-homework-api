@@ -117,7 +117,7 @@ const updateAvatar = async (req, res, next) => {
   if (!user) {
     return res.status(401).json({ message: "Not authorized" });
   }
-  return res.status(200).json({ data: { avatar: user.avatar } });
+  return res.status(200).json({ avatarUrl: user.avatarUrl });
 };
 
 module.exports = {

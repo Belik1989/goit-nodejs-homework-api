@@ -16,7 +16,7 @@ router.get("/:contactId", isValidId, contactsController.getContactById);
 
 router.post(
   "/",
-  upload.single("avatar"),
+  upload.single("avatarUrl"),
   validateBody(schemas.addSchema),
   contactsController.addContact
 );
