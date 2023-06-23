@@ -8,6 +8,8 @@ const Jimp = require("jimp");
 
 const path = require("path");
 
+const fs = require("fs/promises");
+
 const User = require("../models/user");
 
 const { RequestError } = require("../helpers");
@@ -18,9 +20,11 @@ const { SECRET_KEY } = process.env;
 
 // const { name, email, password } = req.body;
 
+const usersDir = path.resolve("public", "avatars");
+
 const signup = async (req, res) => {
   const { email, password } = req.body;
-  const avatar = gravatar.url(email, { s: "100", r: "x", d: "retro" }, true);
+  const avatarUrl = gravatar.url(email, { s: "100", r: "x", d: "retro" }, true);
   const user = await User.findOne({ email });
   if (user) {
     throw RequestError(409, "Email in use");
@@ -30,13 +34,13 @@ const signup = async (req, res) => {
 
   const newUser = await User.create({
     ...req.body,
-    avatar,
+    avatarUrl,
     password: hashPassword,
   });
 
   const { subscription } = await User.create(newUser);
   res.status(201).json({
-    user: { email, subscription, avatar },
+    user: { email, subscription, avatarUrl },
   });
 };
 
@@ -93,31 +97,25 @@ const userUpdateSubscription = async (req, res) => {
   res.status(201).json(result);
 };
 
-const updateAvatar = async (req, res, next) => {
+const updateAvatar = async (req, res) => {
   const { _id } = req.user;
-  const { filename } = req.file;
-  const tempPath = path.resolve(__dirname, "../temp", filename);
-  const publicPath = path.resolve(__dirname, "../public/avatars", filename);
+  const { path: tempUpload, originalname } = req.file;
+  console.log(req.file);
 
-  await Jimp.read(tempPath)
+  await Jimp.read(tempUpload)
     .then((img) => {
-      return img.resize(250, 250).write(publicPath);
+      return img.resize(250, 250).writeAsync(tempUpload);
     })
     .catch((err) => {
-      throw new Error(err.message);
+      console.error(err);
     });
 
-  const user = await User.findOneAndUpdate(
-    { _id },
-    {
-      avatar: `/avatars/${filename} `,
-    },
-    { new: true }
-  );
-  if (!user) {
-    return res.status(401).json({ message: "Not authorized" });
-  }
-  return res.status(200).json({ avatarUrl: user.avatarUrl });
+  const filename = `${_id}_${originalname}`;
+  const resultUpload = path.join(usersDir, filename);
+  await fs.rename(tempUpload, resultUpload);
+  const avatarURL = path.join("avatars", filename);
+  await User.findByIdAndUpdate(_id, { avatarURL });
+  res.status(200).json({ avatarURL: avatarURL });
 };
 
 module.exports = {
