@@ -6,7 +6,7 @@ const schemas = require("../../schemas/contacts");
 
 const { validateBody } = require("../../decorators");
 const { validateBodyFavorite } = require("../../decorators");
-const { isValidId, authenticate } = require("../../middlewares");
+const { isValidId, authenticate, upload } = require("../../middlewares");
 
 router.use(authenticate);
 
@@ -16,6 +16,7 @@ router.get("/:contactId", isValidId, contactsController.getContactById);
 
 router.post(
   "/",
+  upload.single("avatarUrl"),
   validateBody(schemas.addSchema),
   contactsController.addContact
 );
